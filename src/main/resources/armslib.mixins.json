@@ -1,0 +1,24 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.mumu17.armslib.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "armslib.refmap.json",
+  "mixins": [
+    "tacz.AbstractGunItemMixin",
+    "tacz.AmmoBoxItemMixin",
+    "tacz.AmmoItemMixin",
+    "tacz.LivingEntityReloadMixin",
+    "tacz.ModernKineticGunScriptAPIMixin",
+    "tacz.ProjectileExplosionMixin",
+    "tacz.client.GunAnimationStateContextMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}
