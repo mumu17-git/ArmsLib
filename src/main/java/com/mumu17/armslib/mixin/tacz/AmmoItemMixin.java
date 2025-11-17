@@ -22,6 +22,9 @@ public class AmmoItemMixin {
             if (access.getIsArsMode(gun)) {
                 return false;
             }
+            if (access.getIsIronsMode(gun)) {
+                return false;
+            }
         }
 
         Item var5 = gun.getItem();

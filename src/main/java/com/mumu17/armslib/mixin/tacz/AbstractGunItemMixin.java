@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import com.mumu17.armslib.util.GunItemNbt;
 import com.mumu17.arscurios.util.ArsCuriosInventoryHelper;
+import com.mumu17.arscurios.util.ArsCuriosLivingEntity;
 import com.mumu17.arscurios.util.ExtendedHand;
 import com.tacz.guns.api.DefaultAssets;
 import com.tacz.guns.api.item.IAmmo;
@@ -30,11 +31,12 @@ public class AbstractGunItemMixin {
     public void findAndExtractInventoryAmmo(IItemHandler itemHandler, ItemStack gunItem, int needAmmoCount, CallbackInfoReturnable<Integer> cir, @Local(name = "cnt") LocalIntRef cnt) {
         ExtendedHand[] extendedHands = ExtendedHand.values();
         if (gunItem.getItem() instanceof IGun iGun) {
-            for (ExtendedHand extendedHand: extendedHands) {
+            //for (ExtendedHand extendedHand: extendedHands) {
                 GunItemNbt access = (GunItemNbt) iGun;
                 LivingEntity owner = access.getOwner(gunItem);
                 if (owner != null) {
-                    ItemStack checkAmmoStack = (extendedHand.isAmmoBox() ? ArsCuriosInventoryHelper.getCuriosInventoryItem(owner, extendedHand.getSlotName()) : (!extendedHand.isCurios() ? owner.getItemInHand(InteractionHand.valueOf(extendedHand.getSlotName())) : ItemStack.EMPTY));
+                    //ItemStack checkAmmoStack = (extendedHand.isAmmoBox() ? ArsCuriosInventoryHelper.getCuriosInventoryItem(owner, extendedHand.getSlotName()) : (!extendedHand.isCurios() ? owner.getItemInHand(InteractionHand.valueOf(extendedHand.getSlotName())) : ItemStack.EMPTY));
+                    ItemStack checkAmmoStack = ArsCuriosLivingEntity.getPlayerExtendedHand(owner).isAmmoBox() ? ArsCuriosInventoryHelper.getCuriosInventoryItem(owner, ArsCuriosLivingEntity.getPlayerExtendedHand(owner).getSlotName()) : ItemStack.EMPTY;
                     Item extractItem = checkAmmoStack.getItem();
                     if (extractItem instanceof AmmoBoxItem iAmmoBox) {
                         if (iAmmoBox.isAmmoBoxOfGun(gunItem, checkAmmoStack)) {
@@ -53,7 +55,7 @@ public class AbstractGunItemMixin {
                         }
                     }
                 }
-            }
+            //}
         }
     }
 

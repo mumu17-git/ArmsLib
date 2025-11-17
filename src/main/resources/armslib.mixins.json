@@ -11,7 +11,8 @@
     "tacz.LivingEntityReloadMixin",
     "tacz.ModernKineticGunScriptAPIMixin",
     "tacz.ProjectileExplosionMixin",
-    "tacz.client.GunAnimationStateContextMixin"
+    "tacz.client.GunAnimationStateContextMixin",
+    "tacz.client.GunHudOverlayMixin"
   ],
   "client": [
   ],
