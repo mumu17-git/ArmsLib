@@ -1,10 +1,12 @@
 package com.mumu17.armslib.mixin.tacz;
 
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
+import com.mumu17.armslib.ArmsLib;
 import com.mumu17.armslib.util.ArmsLibAmmoUtil;
 import com.mumu17.armslib.util.GunItemNbt;
 import com.mumu17.arscurios.util.ArsCuriosInventoryHelper;
-import com.mumu17.arscurios.util.ArsCuriosLivingEntity;
-import com.mumu17.arscurios.util.ExtendedHand;
+import com.mumu17.arscurios.util.InteractionHandUtil;
 import com.tacz.guns.api.DefaultAssets;
 import com.tacz.guns.api.TimelessAPI;
 import com.tacz.guns.api.item.IAmmoBox;
@@ -18,6 +20,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -34,9 +37,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(AmmoBoxItem.class)
 @Implements(value = @Interface(iface = AmmoBoxItemDataAccessor.class, prefix = "AmmoBoxItemDataAccessor$"))
 public class AmmoBoxItemMixin {
-
-    @Unique
-    private boolean isMode = false;
 
     @Inject(method = "lambda$overrideStackedOnOther$0", at = @At(value = "INVOKE", target = "Lcom/tacz/guns/item/AmmoBoxItem;setAmmoCount(Lnet/minecraft/world/item/ItemStack;I)V"), remap = false)
     private void overrideStackedOnOther$0(int boxAmmoCount, ResourceLocation boxAmmoId, Slot slot, ItemStack ammoBox, Player player, CommonAmmoIndex index, CallbackInfo ci) {
@@ -56,17 +56,18 @@ public class AmmoBoxItemMixin {
                 GunItemNbt access = (GunItemNbt) iGun;
                 LivingEntity owner = access.getOwner(gun);
 
-                if (access.getIsArsMode(gun) != isAmmoBoxArsMode(ammoBox)) {
-                    return false;
-                }
 
-                if (access.getIsIronsMode(gun) != isAmmoBoxIronsMode(ammoBox)) {
-                    return false;
-                } else if (access.getIsIronsMode(gun)) {
-                    if (ArmsLibAmmoUtil.getMode(ammoBox) && !ArmsLibAmmoUtil.isSelectedSpellSlot(findHandOfAmmoBox(owner, ammoBox), owner)) {
-                        return false;
-                    }
-                }
+//                if (isAmmoBoxArsMode(ammoBox) && !access.getIsArsMode(gun)) {
+//                    return false;
+//                }
+
+//                if (access.getIsIronsMode(gun) != isAmmoBoxIronsMode(ammoBox)) {
+//                    return false;
+//                } else if (access.getIsIronsMode(gun)) {
+//                    if (ArmsLibAmmoUtil.getMode(ammoBox) && !ArmsLibAmmoUtil.isSelectedSpellSlot(findHandOfAmmoBox(owner, ammoBox), owner)) {
+//                        return false;
+//                    }
+//                }
 
                 if (((AmmoBoxItem)(Object)this).isAllTypeCreative(ammoBox)) {
                     return true;
@@ -85,14 +86,14 @@ public class AmmoBoxItemMixin {
                         return false;
                     }
 
-                    ItemStack stack = ArsCuriosInventoryHelper.getCuriosInventoryItem(owner, ArsCuriosLivingEntity.getPlayerExtendedHand(owner).getSlotName());
-                    if (stack.getItem() instanceof IAmmoBox stackIAmmoBox){
+                    ItemStack stack = ArsCuriosInventoryHelper.getCuriosInventoryItem(owner, InteractionHandUtil.getSlotName(access.getInteractionHand(gun)));
+                    if (stack.getItem() instanceof IAmmoBox stackIAmmoBox) {
                         ResourceLocation stackAmmoId = stackIAmmoBox.getAmmoId(stack);
                         if (!stackAmmoId.equals(gunAmmoId)) {
                             if (ammoId.equals(gunAmmoId)) {
-                                ExtendedHand hand = findHandOfAmmoBox(owner, ammoBox);
-                                if (hand != null && hand.isAmmoBox()) {
-                                    ArsCuriosLivingEntity.setPlayerExtendedHand(owner, hand);
+                                InteractionHand hand = findHandOfAmmoBox(owner, ammoBox);
+                                if (hand != null && InteractionHandUtil.isAmmoBox(hand)) {
+                                    access.setInteractionHand(gun, hand);
                                 } else {
                                     return false;
                                 }
@@ -150,17 +151,17 @@ public class AmmoBoxItemMixin {
     }
 
     @Unique
-    private static ExtendedHand findHandOfAmmoBox(LivingEntity entity, ItemStack ammoBox) {
+    private static InteractionHand findHandOfAmmoBox(LivingEntity entity, ItemStack ammoBox) {
         if (entity != null) {
-            for (ExtendedHand hand : ExtendedHand.values()) {
-                if (hand.isAmmoBox()) {
-                    ItemStack stack = ArsCuriosInventoryHelper.getCuriosInventoryItem(entity, hand.getSlotName());
+            for (InteractionHand hand : InteractionHand.values()) {
+                if (InteractionHandUtil.isAmmoBox(hand)) {
+                    ItemStack stack = ArsCuriosInventoryHelper.getCuriosInventoryItem(entity, InteractionHandUtil.getSlotName(hand));
                     if (ItemStack.isSameItemSameTags(stack, ammoBox)) {
                         return hand;
                     }
                 }
             }
         }
-        return ExtendedHand.MAIN_HAND;
+        return InteractionHand.MAIN_HAND;
     }
 }

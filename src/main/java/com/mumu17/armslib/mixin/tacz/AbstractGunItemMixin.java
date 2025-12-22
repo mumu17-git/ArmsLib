@@ -4,8 +4,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import com.mumu17.armslib.util.GunItemNbt;
 import com.mumu17.arscurios.util.ArsCuriosInventoryHelper;
-import com.mumu17.arscurios.util.ArsCuriosLivingEntity;
-import com.mumu17.arscurios.util.ExtendedHand;
+import com.mumu17.arscurios.util.InteractionHandUtil;
 import com.tacz.guns.api.DefaultAssets;
 import com.tacz.guns.api.item.IAmmo;
 import com.tacz.guns.api.item.IAmmoBox;
@@ -29,14 +28,15 @@ public class AbstractGunItemMixin {
 
     @Inject(method = "findAndExtractInventoryAmmo", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/items/IItemHandler;getSlots()I"), remap = false, cancellable = true)
     public void findAndExtractInventoryAmmo(IItemHandler itemHandler, ItemStack gunItem, int needAmmoCount, CallbackInfoReturnable<Integer> cir, @Local(name = "cnt") LocalIntRef cnt) {
-        ExtendedHand[] extendedHands = ExtendedHand.values();
+        InteractionHand[] hands = InteractionHand.values();
         if (gunItem.getItem() instanceof IGun iGun) {
             //for (ExtendedHand extendedHand: extendedHands) {
                 GunItemNbt access = (GunItemNbt) iGun;
                 LivingEntity owner = access.getOwner(gunItem);
                 if (owner != null) {
                     //ItemStack checkAmmoStack = (extendedHand.isAmmoBox() ? ArsCuriosInventoryHelper.getCuriosInventoryItem(owner, extendedHand.getSlotName()) : (!extendedHand.isCurios() ? owner.getItemInHand(InteractionHand.valueOf(extendedHand.getSlotName())) : ItemStack.EMPTY));
-                    ItemStack checkAmmoStack = ArsCuriosLivingEntity.getPlayerExtendedHand(owner).isAmmoBox() ? ArsCuriosInventoryHelper.getCuriosInventoryItem(owner, ArsCuriosLivingEntity.getPlayerExtendedHand(owner).getSlotName()) : ItemStack.EMPTY;
+                    InteractionHand hand = access.getInteractionHand(gunItem);
+                    ItemStack checkAmmoStack = InteractionHandUtil.isAmmoBox(hand) ? ArsCuriosInventoryHelper.getCuriosInventoryItem(owner, InteractionHandUtil.getSlotName(hand)) : ItemStack.EMPTY;
                     Item extractItem = checkAmmoStack.getItem();
                     if (extractItem instanceof AmmoBoxItem iAmmoBox) {
                         if (iAmmoBox.isAmmoBoxOfGun(gunItem, checkAmmoStack)) {
@@ -85,10 +85,10 @@ public class AbstractGunItemMixin {
 
     @Inject(method = "lambda$hasInventoryAmmo$6", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/items/IItemHandler;getSlots()I"), cancellable = true, remap = false)
     private static void hasInventoryAmmoBox(ItemStack gun, IItemHandler cap, CallbackInfoReturnable<Boolean> cir) {
-        for (int i = 0; i < ExtendedHand.values().length; i++) {
+        for (int i = 0; i < InteractionHand.values().length; i++) {
             GunItemNbt access = (GunItemNbt) gun.getItem();
             LivingEntity owner = access.getOwner(gun);
-            ItemStack checkAmmoStack = ArsCuriosInventoryHelper.getCuriosInventoryItem(owner, ExtendedHand.values()[i].getSlotName());
+            ItemStack checkAmmoStack = ArsCuriosInventoryHelper.getCuriosInventoryItem(owner, InteractionHandUtil.getSlotName(InteractionHand.values()[i]));
             if (checkAmmoStack.getItem() instanceof AmmoBoxItem iAmmoBox && iAmmoBox.isAmmoBoxOfGun(gun, checkAmmoStack)) {
                 cir.setReturnValue(true);
                 cir.cancel();
@@ -110,10 +110,10 @@ public class AbstractGunItemMixin {
 
     @Inject(method = "lambda$canReload$1", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/items/IItemHandler;getSlots()I"), cancellable = true, remap = false)
     private static void canReload(ItemStack gun, IItemHandler cap, CallbackInfoReturnable<Boolean> cir) {
-        for (int i = 0; i < ExtendedHand.values().length; i++) {
+        for (int i = 0; i < InteractionHand.values().length; i++) {
             GunItemNbt access = (GunItemNbt) gun.getItem();
             LivingEntity owner = access.getOwner(gun);
-            ItemStack checkAmmoStack = ArsCuriosInventoryHelper.getCuriosInventoryItem(owner, ExtendedHand.values()[i].getSlotName());
+            ItemStack checkAmmoStack = ArsCuriosInventoryHelper.getCuriosInventoryItem(owner, InteractionHandUtil.getSlotName(InteractionHand.values()[i]));
             if (checkAmmoStack.getItem() instanceof AmmoBoxItem iAmmoBox && iAmmoBox.isAmmoBoxOfGun(gun, checkAmmoStack)) {
                 cir.setReturnValue(true);
                 cir.cancel();

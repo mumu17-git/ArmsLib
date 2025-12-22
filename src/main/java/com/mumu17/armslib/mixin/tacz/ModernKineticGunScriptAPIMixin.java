@@ -2,12 +2,13 @@ package com.mumu17.armslib.mixin.tacz;
 
 import com.mumu17.armslib.util.GunItemNbt;
 import com.mumu17.arscurios.util.ArsCuriosInventoryHelper;
-import com.mumu17.arscurios.util.ExtendedHand;
+import com.mumu17.arscurios.util.InteractionHandUtil;
 import com.tacz.guns.api.item.IAmmo;
 import com.tacz.guns.api.item.IAmmoBox;
 import com.tacz.guns.item.AmmoBoxItem;
 import com.tacz.guns.item.AmmoItem;
 import com.tacz.guns.item.ModernKineticGunScriptAPI;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
@@ -37,10 +38,10 @@ public abstract class ModernKineticGunScriptAPIMixin {
 
     @Inject(method = "lambda$hasAmmoToConsume$5", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/items/IItemHandler;getSlots()I"), cancellable = true, remap = false)
     public void hasAmmoToConsumeReturn(IItemHandler cap, CallbackInfoReturnable<Boolean> cir) {
-        for (int i = 0; i < ExtendedHand.values().length; i++) {
+        for (int i = 0; i < InteractionHand.values().length; i++) {
             GunItemNbt access = (GunItemNbt) itemStack.getItem();
             LivingEntity owner = access.getOwner(itemStack);
-            ItemStack checkAmmoStack = ArsCuriosInventoryHelper.getCuriosInventoryItem(owner, ExtendedHand.values()[i].getSlotName());
+            ItemStack checkAmmoStack = ArsCuriosInventoryHelper.getCuriosInventoryItem(owner, InteractionHandUtil.getSlotName(InteractionHand.values()[i]));
             if (checkAmmoStack.getItem() instanceof AmmoBoxItem iAmmoBox && iAmmoBox.isAmmoBoxOfGun(itemStack, checkAmmoStack)) {
                 cir.setReturnValue(true);
                 cir.cancel();

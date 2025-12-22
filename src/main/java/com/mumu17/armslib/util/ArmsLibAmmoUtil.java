@@ -1,16 +1,13 @@
 package com.mumu17.armslib.util;
 
-import com.mumu17.armslib.mixin.tacz.AmmoBoxItemMixin;
 import com.mumu17.arscurios.util.ArsCuriosInventoryHelper;
-import com.mumu17.arscurios.util.ArsCuriosLivingEntity;
-import com.mumu17.arscurios.util.ExtendedHand;
-import com.tacz.guns.api.item.IAmmo;
+import com.mumu17.arscurios.util.InteractionHandUtil;
 import com.tacz.guns.api.item.IAmmoBox;
 import com.tacz.guns.item.AmmoBoxItem;
 import com.tacz.guns.item.AmmoItem;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Unique;
 
@@ -22,10 +19,10 @@ public class ArmsLibAmmoUtil {
     public static int handleInventoryAmmo(ItemStack stack, Inventory inventory) {
         int cacheInventoryAmmoCount = 0;
 
-        for (int i = 0; i < ExtendedHand.values().length; i++) {
-            ExtendedHand hand = ExtendedHand.values()[i];
-            if (hand.isAmmoBox()) {
-                ItemStack curiosStack = ArsCuriosInventoryHelper.getCuriosInventoryItem(inventory.player, hand.getSlotName());
+        for (int i = 0; i < InteractionHand.values().length; i++) {
+            InteractionHand hand = InteractionHand.values()[i];
+            if (InteractionHandUtil.isAmmoBox(hand)) {
+                ItemStack curiosStack = ArsCuriosInventoryHelper.getCuriosInventoryItem(inventory.player, InteractionHandUtil.getSlotName(hand));
                 int tmp = handleInventoryAmmo(stack, null, curiosStack, cacheInventoryAmmoCount, -1);
                 if (tmp != cacheInventoryAmmoCount) {
                     cacheInventoryAmmoCount = tmp;
@@ -64,7 +61,7 @@ public class ArmsLibAmmoUtil {
         return cacheInventoryAmmoCount;
     }
 
-    public static boolean isSelectedSpellSlot(ExtendedHand ammoBoxSlot, LivingEntity player) {
+    public static boolean isSelectedSpellSlot(InteractionHand ammoBoxSlot, LivingEntity player) {
         return true;
     }
 

@@ -1,10 +1,12 @@
 package com.mumu17.armslib.util;
 
+import com.mumu17.arscurios.util.InteractionHandUtil;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -14,8 +16,9 @@ import java.util.Objects;
 
 public interface GunItemNbt {
 
-    String OWNER_UUID = "OwnerUUID", OWNER_DIMENSION = "OwnerDimension",
-            LAST_SHOOT_TIMESTAMP = "LastShootTimestamp", LAST_AMMO_COUNT = "LastAmmoCount", LAST_GUN_DAMAGE = "LastGunDamage";
+    String  OWNER_UUID = "OwnerUUID", OWNER_DIMENSION = "OwnerDimension",
+            LAST_SHOOT_TIMESTAMP = "LastShootTimestamp", LAST_AMMO_COUNT = "LastAmmoCount", LAST_GUN_DAMAGE = "LastGunDamage",
+            INTERACTION_HAND_ID = "InteractionHandID";
 
     default void setLastTimestamp(ItemStack gunItem, long timestamp) {
         CompoundTag tag = gunItem.getOrCreateTag();
@@ -78,6 +81,22 @@ public interface GunItemNbt {
             return null;
 
         return (LivingEntity) Objects.requireNonNull(server.getLevel(dimension)).getEntity(tag.getUUID(OWNER_UUID));
+    }
+
+    default void setInteractionHand(ItemStack gunItem, InteractionHand hand) {
+        CompoundTag tag = gunItem.getOrCreateTag();
+        if (hand != null) {
+            tag.putString(INTERACTION_HAND_ID, InteractionHandUtil.getSlotName(hand));
+        }
+    }
+
+    default InteractionHand getInteractionHand(ItemStack gunItem) {
+        CompoundTag tag = gunItem.getTag();
+        if (tag != null && tag.contains(INTERACTION_HAND_ID)) {
+            String id = tag.getString(INTERACTION_HAND_ID);
+            return InteractionHandUtil.getSlotByName(id);
+        }
+        return InteractionHand.MAIN_HAND;
     }
 
     default void setIsArsMode(ItemStack gunItem, boolean isArsMode) {
